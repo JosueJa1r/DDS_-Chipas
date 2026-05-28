@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diversificacion de Cultivos - Sistema de Apoyo Agricola (DSS)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="content">
+        <header class="main-header">
+            <h1>Semilla Inteligente</h1>
+            <p class="subtitle">Sistema de Apoyo a Decisiones Agricolas (DSS)</p>
+        </header>
+
+
+        
+        <main id="dashboard">
+            <div class="form-container">
+                <h2>Fase 1: Captura de Datos</h2>
+                <form id="diagnostico-form">
+                    <div class="form-grid">
+                        <fieldset>
+                            <legend>Paso 01: Perfil del Productor</legend>
+                            <label for="nombre">Nombre del productor:
+                                <input type="text" id="nombre" name="nombre" placeholder="Ej. Maria Lopez" required>
+                            </label>
+                            
+                            <label for="region">Region (Chiapas):
+                                <select id="region" name="region" required>
+                                    <option value="Simojovel">Simojovel (Altitud: 900m)</option>
+                                    <option value="Tapachula">Tapachula (Altitud: 120m)</option>
+                                    <option value="San Cristobal">San Cristobal de las Casas (Altitud: 2200m)</option>
+                                    <option value="Palenque">Palenque (Altitud: 60m)</option>
+                                    <option value="Comitan">Comitan (Altitud: 1600m)</option>
+                                    <option value="Tuxtla Gutierrez">Tuxtla Gutierrez (Altitud: 530m)</option>
+                                </select>
+                            </label>
+
+                            <label for="superficie">Superficie (Hectareas):
+                                <input type="number" id="superficie" name="superficie" step="0.1" min="0.1" placeholder="Ej. 2" required>
+                            </label>
+                            
+                            <label for="presupuesto">Presupuesto Disponible (MXN):
+                                <input type="number" id="presupuesto" name="presupuesto" min="1" placeholder="Ej. 50000" required>
+                            </label>
+
+                            <label for="experiencia">Experiencia del Productor:
+                                <input type="text" id="experiencia" name="experiencia" placeholder="Ej. 5 años, principiante" required>
+                            </label>
+                        </fieldset>
+                        
+                        <fieldset>
+                            <legend>Paso 02: Analisis quimico de Suelo</legend>
+                            <label for="ph">pH del Suelo:
+                                <input type="number" id="ph" name="ph" step="0.1" min="0" max="14" placeholder="Ej. 5.8" required>
+                            </label>
+                            
+                            <label for="nitrogeno">Nitrogeno (ppm):
+                                <input type="number" id="nitrogeno" name="nitrogeno" min="0" placeholder="Ej. 22" required>
+                            </label>
+                            
+                            <label for="materia_organica">Materia Organica (%):
+                                <input type="number" id="materia_organica" name="materia_organica" step="0.1" min="0" max="100" placeholder="Ej. 3.2" required>
+                            </label>
+                            
+                            <div class="note-box">
+                                <p><strong>Nota tecnica:</strong> Los requerimientos de fosforo y potasio se asumen optimos en esta evaluacion regional preliminar para Chiapas.</p>
+                            </div>
+                        </fieldset>
+                    </div>
+                    
+                    <button type="submit" id="btn-submit">Generar Diagnostico Completo</button>
+                </form>
+            </div>
+                        <div id="resultados-seccion" style="display:none;" class="resultados-container">
+                <hr class="separator">
+                
+                <h2>Resultados y Análisis Técnico de Diversificación (<span id="cultivo-analisis-titulo">-</span>)</h2>
+                
+                <!-- Barra de pestañas del Dashboard -->
+                <div class="dashboard-tabs">
+                    <button class="tab-btn active" data-tab="tab-resumen">📊 Evaluación General</button>
+                    <button class="tab-btn" data-tab="tab-gauss">🧪 Salud Química (pH)</button>
+                    <button class="tab-btn" data-tab="tab-correlacion">📈 Relación y Correlación</button>
+                    <button class="tab-btn" data-tab="tab-montecarlo">🎲 Proyección de Rendimiento</button>
+                    <button class="tab-btn" data-tab="tab-recomendaciones">📋 Recomendaciones</button>
+                </div>
+                
+                <!-- Contenido de las pestañas -->
+                
+                <!-- Pestaña 1: Evaluación General -->
+                <div id="tab-resumen" class="tab-content active">
+                    <div class="table-responsive">
+                        <table class="resultados-tabla" id="tabla-cultivos">
+                            <thead>
+                                <tr>
+                                    <th>Cultivo</th>
+                                    <th>Apto</th>
+                                    <th>Rendimiento Total</th>
+                                    <th>Ingreso Total</th>
+                                    <th>Costo de Cultivo</th>
+                                    <th>Utilidad Anual</th>
+                                    <th>VPN (5 años)</th>
+                                    <th>TIR Estimada</th>
+                                    <th>Recomendar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se rellenara con Javascript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="grafica-box-full">
+                        <h3>Comparativa de Viabilidad Financiera (VPN a 5 años)</h3>
+                        <div class="chart-container-large">
+                            <canvas id="chart-vpn"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pestaña 2: Salud Química (pH) -->
+                <div id="tab-gauss" class="tab-content">
+                    <div class="analisis-grid-two-cols">
+                        <div class="analisis-card-large">
+                            <h3>Distribución del pH en el Suelo (Curva Normal de Gauss)</h3>
+                            <div class="chart-container-large">
+                                <canvas id="chart-gauss-ph"></canvas>
+                            </div>
+                        </div>
+                        <div class="details-panel-side">
+                            <h3>Interpretación del pH</h3>
+                            <p>El pH mide la concentración de iones de hidrógeno en la solución del suelo y afecta directamente la solubilidad y disponibilidad de nutrientes esenciales para las plantas.</p>
+                            <ul>
+                                <li><strong>Zona Ácida (Riesgo, pH &lt; 5.0)</strong>: Limita gravemente el desarrollo del sistema radicular debido a la solubilidad del aluminio libre y disminuye el acceso al fósforo y calcio.</li>
+                                <li><strong>Zona Favorable (pH 5.0 a 7.0)</strong>: Rango óptimo en el cual la mayor parte de los macro y micronutrientes se liberan y asimilan fácilmente por el cultivo.</li>
+                                <li><strong>Zona Alcalina (Riesgo, pH &gt; 7.0)</strong>: Puede inducir deficiencias de hierro, manganeso y zinc debido a la precipitación química de estos elementos.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pestaña 3: Relación y Correlación -->
+                <div id="tab-correlacion" class="tab-content">
+                    <div class="analisis-grid-correlacion">
+                        <div class="analisis-card">
+                            <h3>Matriz de Calor de Correlación (&rho;)</h3>
+                            <p class="tab-sub">Mide la fuerza y dirección de la relación lineal entre las variables consideradas.</p>
+                            <div class="table-responsive-small">
+                                <table class="heatmap-table" id="tabla-correlacion">
+                                    <thead>
+                                        <tr>
+                                            <th>Factor</th>
+                                            <th>pH (X1)</th>
+                                            <th>Nutr (X2)</th>
+                                            <th>Plag (X3)</th>
+                                            <th>Merm (X4)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Rellenado dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="analisis-card">
+                            <h3>Gráfica de Dispersión: Incidencia de Plagas vs Merma</h3>
+                            <p class="tab-sub">Visualización de las parcelas evaluadas en la región.</p>
+                            <div class="chart-container-large">
+                                <canvas id="chart-dispersion"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pestaña 4: Simulación Monte Carlo -->
+                <div id="tab-montecarlo" class="tab-content">
+                    <div class="analisis-grid-two-cols">
+                        <div class="analisis-card-large">
+                            <h3>Simulación Monte Carlo (Rendimiento por Hectárea)</h3>
+                            <div class="chart-container-large">
+                                <canvas id="chart-montecarlo-rendimiento"></canvas>
+                            </div>
+                        </div>
+                        <div class="details-panel-side">
+                            <h3>Análisis de Estabilidad y Riesgo</h3>
+                            <p>Ejecutamos 1,000 iteraciones estocásticas variando el rendimiento base conforme al historial de volatilidad del cultivo recomendado en Chiapas (cambio climático, eventos extremos, plagas).</p>
+                            <div class="metric-highlight">
+                                <span class="metric-label">Probabilidad de Éxito Agrícola:</span>
+                                <strong id="montecarlo-badge-exito" class="badge-prob">0%</strong>
+                            </div>
+                            <div class="metric-highlight">
+                                <span class="metric-label">Punto de Equilibrio Requerido:</span>
+                                <strong class="badge-neutral"><span id="montecarlo-equilibrio-ton">0</span> Ton/Ha</strong>
+                            </div>
+                            <p class="metric-desc">La línea roja vertical en la gráfica indica el rendimiento mínimo necesario para recuperar la inversión inicial. Un alto porcentaje por encima del equilibrio asegura estabilidad económica para tu inversión.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pestaña 5: Recomendaciones -->
+                <div id="tab-recomendaciones" class="tab-content">
+                    <div class="recomendaciones-box-full">
+                        <h3>Recomendaciones Estratégicas y Tecnológicas</h3>
+                        <div id="lista-recomendaciones">
+                            <!-- Se rellenara con Javascript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botón de acción para el PDF (siempre visible al pie) -->
+                <div class="action-bar">
+                    <button id="btn-pdf">Descargar Reporte PDF Completo</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
