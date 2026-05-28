@@ -25,7 +25,7 @@
 
 body {
     background-color: var(--bg-dark);
-    background-image: radial-gradient(circle at 50% 50%, rgba(27, 94, 32, 0.3) 0%, rgba(18, 24, 19, 0.95) 100%), url('../img/Fondo de  pagina.png');
+    background-image: radial-gradient(circle at 50% 50%, rgba(27, 94, 32, 0.3) 0%, rgba(18, 24, 19, 0.95) 100%), url('../img/fondo_pagina.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
