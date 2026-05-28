@@ -1,44 +1,5 @@
 import numpy as np
 
-
-
-# Cálculo de Valor Presente Neto (VPN) a 5 años y 12% de interés
-def calcular_vpn(utilidad_anual, inversion_inicial=0.0):
-    """
-    Calcula el VPN usando un factor de anualidad para 5 años al 12% (3.6048).
-    Fórmula: VPN = utilidad_anual * 3.6048
-    """
-    return utilidad_anual * 3.6048
-
-# Cálculo exacto de la Tasa Interna de Retorno (TIR)
-def calcular_tir(inversion_inicial, utilidad_anual, n_anos=5):
-    """
-    Calcula numéricamente la TIR resolviendo la ecuación de valor presente:
-    Inversión = utilidad_anual * factor_anualidad(TIR, n_anos)
-    """
-    if inversion_inicial <= 0 or utilidad_anual <= 0:
-        return 0.18  # Valor predeterminado de respaldo
-    if utilidad_anual * n_anos <= inversion_inicial:
-        return 0.0
-
-    low = -0.99
-    high = 10.0
-    for _ in range(100):
-        mid = (low + high) / 2
-        # Calcular factor de descuento para mid
-        factor = sum(1.0 / ((1 + mid) ** t) for t in range(1, n_anos + 1))
-        npv = -inversion_inicial + (utilidad_anual * factor)
-        
-        if abs(npv) < 1e-4:
-            return mid
-        if npv > 0:
-            low = mid
-        else:
-            high = mid
-    return low
-
-# --- Funciones para Fase 5 y Reporte Técnico ---
-
 def generar_curva_gauss(ph_optimo, std_dev=0.5):
     """
     Genera puntos x, y para graficar la distribución normal de la salud del suelo respecto al pH.
@@ -58,7 +19,7 @@ def simulacion_monte_carlo_rendimiento(rendimiento_real, costo_total_ha, precio_
     Calcula el Punto de Equilibrio (Rendimiento mínimo requerido para cubrir costos).
     Agrupa los resultados para un histograma.
     """
-    # Si el rendimiento real es 0, no hay simulación
+    # Si el rendimiento real es 0 o precio es 0, no hay simulación
     if rendimiento_real <= 0 or precio_venta_ton <= 0:
         return {
             "rendimiento_real": 0.0,
@@ -162,7 +123,6 @@ def generar_datos_correlacion(ph_optimo, ph_suelo, N_min, nitrogeno_suelo, pest_
     for i in range(len(labels)):
         correlaciones[labels[i]] = {}
         for j in range(len(labels)):
-            # Evitar NaNs por si acaso
             val = coef_matrix[i, j]
             if np.isnan(val):
                 val = 0.0
@@ -172,4 +132,3 @@ def generar_datos_correlacion(ph_optimo, ph_suelo, N_min, nitrogeno_suelo, pest_
         "parcelas": datos_parcelas,
         "matriz": correlaciones
     }
-

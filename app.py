@@ -10,11 +10,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 
 from modulos.suelo import Suelo
-from modulos.matematicas import (
-    calcular_vpn, calcular_tir,
-    generar_curva_gauss, simulacion_monte_carlo_rendimiento, generar_datos_correlacion
-)
-from modulos.database import (
+from modulos.Contabilidad import calcular_vpn, calcular_tir
+from modulos.Probabilidad import generar_curva_gauss, simulacion_monte_carlo_rendimiento, generar_datos_correlacion
+from modulos.Database import (
     obtener_todos_los_datos_cultivos, obtener_todos_los_cultivos, obtener_altitud_region_db,
     obtener_todas_las_regiones, obtener_plagas_por_cultivo_y_region, get_fallback_data
 )

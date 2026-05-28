@@ -1,116 +1,116 @@
-# Semilla Inteligente: Sistema de Apoyo a Decisiones Agricolas (DSS)
+# Semilla Inteligente: Sistema de Apoyo a Decisiones Agrícolas (DSS)
 **Proyecto de 3er Semestre - Universidad Rosario Castellanos**
 
-Este sistema es una plataforma analitica diseñada para guiar a los pequeños y medianos productores de Chiapas, Mexico, en la toma de decisiones estrategicas para la diversificacion de cultivos. El sistema automatiza el analisis agronomico de suelo, la validacion biogeografica por altitud y las proyecciones financieras para recomendar las opciones de cultivo mas viables y rentables.
+Semilla Inteligente es una plataforma analítica avanzada diseñada como un Sistema de Soporte de Decisiones (DSS) para guiar a los pequeños y medianos productores del estado de Chiapas, México, en la reconversión y diversificación de sus cultivos. El sistema automatiza el análisis agronómico de la salud del suelo, la viabilidad biogeográfica regional por altitud, la predicción del riesgo de plagas y la viabilidad financiera estocástica.
 
 ---
 
-## 1. Como Funciona el Sistema (Las 5 Fases)
+## 📋 1. Descripción del Proyecto
 
-El flujo del diagnostico y recomendacion de cultivos se estructura en 5 fases secuenciales:
+El sistema ofrece una experiencia digital premium e interactiva con diseño **Glassmorphism**, organizada en un Dashboard de 5 pestañas de análisis técnico:
+1.  **Evaluación General:** Reporte sintético de factibilidad agronómica y financiera para los cultivos principales de la región (Café, Cacao, Plátano y Maíz).
+2.  **Salud Química (pH):** Gráfica interactiva de la curva de Gauss que representa la asimilación de nutrientes según la acidez del suelo.
+3.  **Relación y Correlación (Pearson):** Matriz de coeficientes de Pearson y gráfico de dispersión de parcelas sintéticas que demuestran la influencia del pH, nitrógeno y plagas sobre la merma del cultivo.
+4.  **Proyección de Rendimiento (Monte Carlo):** Histograma de frecuencias estocásticas generadas tras 1,000 iteraciones para evaluar la probabilidad de éxito financiero.
+5.  **Recomendaciones y Reporte PDF:** Plan de manejo agronómico personalizado y botón de descarga para reportes PDF formales generados al vuelo en el backend.
 
-### Fase 1: Captura de Datos
-El productor ingresa dos tipos de informacion en la interfaz:
-*   **Perfil del productor:** Nombre, Region (asociada a una altitud biogeografica oficial), Superficie a cultivar (en hectareas), Presupuesto de inversion y Experiencia previa.
-*   **Analisis quimico de suelo:** pH, Nitrogeno (ppm) y Materia Organica (%).
+## 🧮 2. Especificaciones de los Módulos Matemáticos
 
-### Fase 2: Diagnostico del Suelo
-El sistema realiza la evaluacion de aptitud de forma individualizada para cada cultivo registrado (Cafe, Cacao, Platano y Maiz), comparando las entradas del suelo contra sus requerimientos maximos y minimos:
-*   **Altitud:** Si la altitud de la region seleccionada esta fuera del rango biogeografico tolerado por el cultivo (por ejemplo, Cacao en San Cristobal de las Casas), el cultivo es descartado de inmediato (**No Apto**).
-*   **Factores de Penalizacion:** Si el suelo se encuentra dentro de los rangos tolerables pero presenta deficiencias, se aplican factores multiplicadores al rendimiento base del cultivo:
-    *   **pH:** 1.0 (en rango), 0.8 (ligeramente fuera ±0.3), 0.5 (fuera por mas de 0.5), 0.0 (fuera de limites críticos).
-    *   **Nitrogeno:** 1.0 (en rango), 0.6 (deficit tolerable), 0.8 (exceso tolerable), 0.0 (extremo).
-    *   **Materia Organica:** 1.0 (en rango), 0.7 (deficit tolerable), 0.0 (extremo).
+La lógica científica del sistema está programada de manera modular en los siguientes archivos bajo la carpeta `modulos/`:
+*   **[Contabilidad.py](file:///c:/Users/josue/OneDrive/Escritorio/univerdad%20rosario%20castellano/3%20Semestre/Proyecto%20P%20301/modulos/Contabilidad.py):** Contiene los cálculos financieros como el Valor Presente Neto (VPN) y la Tasa Interna de Retorno (TIR).
+*   **[Probabilidad.py](file:///c:/Users/josue/OneDrive/Escritorio/univerdad%20rosario%20castellano/3%20Semestre/Proyecto%20P%20301/modulos/Probabilidad.py):** Alberga los modelos estocásticos (curva de Gauss, simulación de Monte Carlo y correlación de Pearson).
+*   **[CalculoIntegral.py](file:///c:/Users/josue/OneDrive/Escritorio/univerdad%20rosario%20castellano/3%20Semestre/Proyecto%20P%20301/modulos/CalculoIntegral.py):** Implementa la integración numérica (Regla del Trapecio compuesta) para calcular el área bajo la curva normal de pH.
+*   **[Database.py](file:///c:/Users/josue/OneDrive/Escritorio/univerdad%20rosario%20castellano/3%20Semestre/Proyecto%20P%20301/modulos/Database.py):** Gestiona la conexión y consultas SQL con MySQL.
 
-### Fase 3: Modelos de Rendimiento y Riesgo
-*   **Rendimiento Real:** Se calcula como `Rendimiento_real = Rendimiento_base * Factor_pH * Factor_N * Factor_MO`.
-*   **Volatilidad (Monte Carlo):** Se utiliza la volatilidad historica registrada en la base de datos para evaluar escenarios de riesgo, determinando la probabilidad de exito inicial y la rentabilidad esperada.
+Estas son las bases algorítmicas y estadísticas utilizadas:
 
-### Fase 4: Analisis Financiero Avanzado
-Para los cultivos considerados aptos (estado Apto o Parcial), el sistema proyecta los siguientes indicadores financieros adaptados a la superficie ingresada:
-*   **Ingresos y Costo Total:** `Ingresos = Rendimiento_total * Precio_tonelada` | `Costo_total = Costo_por_hectarea * Superficie`.
-*   **Utilidad Anual:** `Utilidad = Ingresos - Costos`.
-*   **VPN (Valor Presente Neto):** Se calcula a 5 años con una tasa de descuento del 12% (aplicando el factor de anualidad acumulada de `3.6048`).
-*   **TIR (Tasa Interna de Retorno):** Se resuelve de manera exacta mediante un algoritmo iterativo de busqueda numerica para determinar la eficiencia marginal del capital.
-*   **Viabilidad Presupuestaria:** Compara el costo total estimado de establecimiento contra el presupuesto del productor.
+### A. Campana de Gauss de la Salud Química (pH)
+Para evaluar cómo afecta la acidez a la asimilación de nutrientes, se modela la salud del suelo a través de una función de densidad de probabilidad normal (distribución de Gauss):
 
-### Fase 5: Recomendaciones y Reporte Tecnico
-*   Se despliega una tabla comparativa clasificada por el VPN descendente.
-*   Se genera una grafica interactiva de barras (Chart.js) que contrasta el VPN de los cultivos analizados.
-*   Se formulan recomendaciones estrategicas automatizadas que sugieren la opcion financiera optima o explican las causas de descarte.
-*   Se exporta un reporte formal en PDF formateado mediante ReportLab Platypus.
+$$y = f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2} \left(\frac{x - \mu}{\sigma}\right)^2}$$
 
----
+Donde:
+*   $\mu$ (Media) = `ph_optimo` del cultivo (definido en la base de datos).
+*   $\sigma$ (Desviación Estándar) = `0.5` (que representa la tolerancia agrónoma estándar del pH antes del bloqueo de nutrientes).
+*   $x$ = Valores de pH en el rango de $3.5$ a $8.5$.
+*   El punto rojo graficado representa el pH real ingresado por el usuario, indicando visualmente si se encuentra en la zona óptima, marginal o de descarte.
 
-## 2. Herramientas y Tecnologias Utilizadas
+### B. Coeficiente de Correlación de Pearson
+Se genera un dataset sintético de 50 parcelas simuladas basadas en los valores reales de pH, nitrógeno y nivel de riesgo de plagas. A partir de estas variables, se calcula la matriz de coeficientes de correlación de Pearson para modelar la merma porcentual ($X_4$):
 
-La aplicacion esta desarrollada bajo una arquitectura web ligera y modular:
+$$r = \frac{\sum (x - \bar{x})(y - \bar{y})}{\sqrt{\sum (x - \bar{x})^2 \sum (y - \bar{y})^2}}$$
 
-### Backend (Logica de Servidor)
-*   **Python 3.10+**: Lenguaje de programacion base.
-*   **Flask**: Micro-framework para levantar el servidor y estructurar la API REST del diagnostico y PDF.
-*   **MySQL Connector**: Conector nativo de Python para la comunicacion con la base de datos MySQL.
-*   **NumPy**: Procesamiento estadistico y numerico avanzado utilizado en simulaciones de riesgo.
-*   **ReportLab (Platypus)**: Motor para construir el PDF dinamico estructurado en flujos de datos (`Paragraph`, `Table`, `Spacer`) evitando desbordamientos de texto.
+Donde:
+*   **$X_1$ (pH):** Generado como distribución normal alrededor del pH real. La merma se incrementa cuadráticamente a mayor desviación respecto a $\mu$.
+*   **$X_2$ (Nitrógeno):** Valores normales alrededor del nitrógeno real. Un nitrógeno por debajo de la tolerancia mínima aumenta linealmente la merma.
+*   **$X_3$ (Plagas):** Riesgo derivado de la región y el cultivo. El nivel de merma es directamente proporcional a este factor.
+*   **$X_4$ (Merma %):** Suma ponderada de las penalizaciones anteriores con ruido aleatorio agrónomo añadido para simular condiciones de campo.
 
-### Frontend (Interfaz de Usuario)
-*   **HTML5 y CSS3**: Diseño web en CSS puro sin dependencias externas, implementando estetica premium con tipografia *Outfit* de Google Fonts, glassmorphism (efecto de vidrio esmerilado), degradados y diseño de tarjetas responsivo.
-*   **JavaScript (ES6)**: Administracion del DOM, peticiones asincronas (`Fetch API`), formateo de monedas y graficacion.
-*   **Chart.js**: Libreria dinamica para renderizar la comparacion de viabilidad financiera (VPN) de los cultivos.
+### C. Simulación de Monte Carlo (Rendimiento y Riesgo)
+Para evaluar la rentabilidad frente a la volatilidad de precios y el cambio climático, se ejecutan 1,000 iteraciones estocásticas basadas en el rendimiento real esperado (el cual ya incluye penalizaciones por deficiencias de suelo):
 
-### Base de Datos
-*   **MySQL Server**: Base de datos relacional `bd_agricultura_chiapas` con la tabla `cultivo` modificada estructuralmente para soportar limites de nitrogeno maximo (`N_max`), materia organica (`MO_min`, `MO_max`) y limites de altitud geografica (`altitud_min`, `altitud_max`).
+$$Rendimiento\_Simulado = Rendimiento\_Real \times (1 + \epsilon)$$
+$$\epsilon \sim N(0, \sigma_{vol})$$
 
----
+Donde:
+*   $\sigma_{vol}$ es el coeficiente de volatilidad histórica del cultivo (ej. 20% para café, 18% para cacao).
+*   Los valores de rendimiento simulados se recortan en $0$ para evitar mermas imposibles.
+*   **Punto de Equilibrio (Breakeven):** Se calcula como el rendimiento mínimo por hectárea necesario para cubrir los costos:
+    $$Rendimiento\_Equilibrio = \frac{Costo\_Total\_Hectarea}{Precio\_Venta\_Tonelada}$$
+*   **Probabilidad de Éxito:** Es la proporción de las 1,000 simulaciones que superan el Rendimiento de Equilibrio.
 
-## 3. Ejemplo Practico de Evaluacion
-
-Para validar el sistema, puedes realizar pruebas con los siguientes dos escenarios:
-
-### Escenario A: Productor Juan Perez en Tapachula (Zona Calida / Baja)
-*   **Entradas del Formulario:**
-    *   Region: `Tapachula (Altitud: 120m)`
-    *   Superficie: `3` hectareas
-    *   Presupuesto: `$90,000` MXN
-    *   pH del Suelo: `6.2`
-    *   Nitrogeno: `35` ppm
-    *   Materia Organica: `4.0` %
-*   **Salidas del Sistema:**
-    *   **Platano:** Apto (Optimo) | Utilidad Anual: $306,000 | VPN: $1,103,069 | TIR: >300% | **Recomendado**
-    *   **Cacao:** Apto (Optimo) | Utilidad Anual: $87,000 | VPN: $313,618 | TIR: 111% | **Recomendado**
-    *   **Maiz:** Parcial (N bajo, factor 0.6) | Utilidad Anual: $4,950 | VPN: $17,844 | TIR: 10%
-    *   **Cafe:** No Apto. Motivo: Exclusión por altitud (120m esta fuera del rango de 600m-1800m).
-
-### Escenario B: Productora Maria Lopez en Simojovel (Zona de Transicion)
-*   **Entradas del Formulario:**
-    *   Region: `Simojovel (Altitud: 900m)`
-    *   Superficie: `2` hectareas
-    *   Presupuesto: `$50,000` MXN
-    *   pH del Suelo: `5.8`
-    *   Nitrogeno: `22` ppm
-    *   Materia Organica: `3.2` %
-*   **Salidas del Sistema:**
-    *   **Platano:** Parcial (N bajo, factor 0.6) | Utilidad Anual: $108,000 | VPN: $389,318 | TIR: 300% | **Recomendado (Mayor VPN)**
-    *   **Cafe:** Apto (Optimo) | Utilidad Anual: $71,200 | VPN: $256,662 | TIR: 160% | **Recomendado**
-    *   **Maiz:** No Apto. Motivo: Nitrogeno muy bajo (22 ppm es inferior a la tolerancia minima).
-    *   **Cacao:** No Apto. Motivo: Exclusión por altitud (900m supera el limite de 800m).
+### D. Valor Presente Neto (VPN) y Tasa Interna de Retorno (TIR)
+*   **VPN a 5 años (Tasa de Descuento = 12%):**
+    $$VPN = \left( \sum_{t=1}^{5} \frac{\text{Utilidad\_Anual\_Total}}{(1 + 0.12)^t} \right) - \text{Inversión\_Inicial}$$
+    Se simplifica multiplicando la utilidad anual por el factor de anualidad acumulada para 5 años al 12% (`3.6048`).
+*   **TIR (Método Numérico):**
+    Resuelve mediante el método de bisección iterativo (100 pasos) la tasa de descuento $r$ tal que:
+    $$VPN(r) = -Inversión\_Inicial + \sum_{t=1}^{5} \frac{Utilidad}{(1 + r)^t} = 0$$
 
 ---
 
-## 4. Instalacion y Uso
+## ⚙️ 3. Instrucciones de Instalación y Configuración
 
 ### Requisitos Previos
-*   Python 3.10 o superior
-*   MySQL Server (con la base de datos `bd_agricultura_chiapas` cargada en el puerto 3306)
+*   Python 3.10 o superior instalado en el sistema.
+*   Servidor MySQL (local o en la nube como Aiven MySQL Cloud) con base de datos activa.
 
-### Pasos para Ejecutar
-1.  Asegurate de que las credenciales de tu base de datos MySQL esten configuradas en el metodo `get_db_connection` en [database.py](file:///c:/Users/josue/OneDrive/Escritorio/univerdad%20rosario%20castellano/3%20Semestre/Proyecto%20P%20301/modulos/database.py).
-2.  Instala las librerias necesarias:
-    ```bash
-    pip install -r requirements.txt
+### Paso 1: Clonar y Crear Entorno Virtual
+1.  Abre una terminal en el directorio del proyecto.
+2.  Crea e inicia el entorno virtual de Python:
+    ```powershell
+    # En Windows (PowerShell)
+    python -m venv .venv
+    .venv\Scripts\Activate.ps1
     ```
-3.  Inicia el servidor Flask:
-    ```bash
-    python app.py
-    ```
-4.  Abre el navegador en http://localhost:5000 para interactuar con la interfaz del sistema.
+
+### Paso 2: Instalar Dependencias
+Instala los paquetes necesarios listados en el archivo [requirements.txt](file:///c:/Users/josue/OneDrive/Escritorio/univerdad%20rosario%20castellano/3%20Semestre/Proyecto%20P%20301/requirements.txt):
+```bash
+pip install -r requirements.txt
+```
+
+### Paso 3: Variables de Entorno (Archivo `.env`)
+Crea un archivo `.env` en la raíz del proyecto para configurar las credenciales de la base de datos (el sistema soporta nombres de clave en minúsculas y mayúsculas):
+```ini
+host=tu_host_mysql_o_cloud
+user=tu_usuario
+password=tu_contraseña
+database=nombre_de_bd
+port=puerto_mysql (ej. 3306)
+```
+> [!NOTE]
+> **Modo Fallback:** Si el servidor de base de datos no está disponible o el archivo `.env` no está configurado, el sistema iniciará en **Modo Fallback**, utilizando un dataset agronómico precargado para garantizar que la aplicación web funcione al 100% durante exposiciones locales.
+
+### Paso 4: Ejecución Local
+Inicia el servidor de desarrollo Flask:
+```bash
+python app.py
+```
+Abre tu navegador en: **`http://localhost:5000`**
+
+### Paso 5: Despliegue en Vercel
+Para desplegar la aplicación en producción en Vercel:
+1.  Instala Vercel CLI e inicia sesión: `npm i -g vercel` y luego `vercel login`.
+2.  Despliega ejecutando: `vercel`.
+3.  Configura las variables de entorno de la base de datos en la consola web de tu proyecto de Vercel.

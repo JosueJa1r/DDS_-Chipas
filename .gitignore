@@ -1,1 +1,7 @@
 .env
+.venv/
+__pycache__/
+*.pyc
+.vercel/
+scratch/test_report.pdf
+scratch/pdf_text.txt
