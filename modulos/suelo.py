@@ -27,16 +27,12 @@ class Suelo:
         rendimiento_base = datos_cultivo['rendimiento_base']
 
         # 1. Validar Altitud de la región
+        altitud_apta = True
+        factor_altitud = 1.0
         if altitud_region < alt_min or altitud_region > alt_max:
-            return {
-                'apto': False,
-                'estado': 'No Apto',
-                'detalles': 'altitud fuera de rango para el cultivo',
-                'factor_ph': 0.0,
-                'factor_n': 0.0,
-                'factor_mo': 0.0,
-                'rendimiento_real': 0.0
-            }
+            altitud_apta = False
+            # Penalización por altitud fuera de rango (factor de 0.25)
+            factor_altitud = 0.25
 
         # 2. Calcular Factor de pH
         # Rango óptimo es el rango general [ph_min, ph_max]
@@ -47,7 +43,7 @@ class Suelo:
         elif (ph_min - 0.5) <= self.ph < (ph_min - 0.3) or (ph_max + 0.3) < self.ph <= (ph_max + 0.5):
             factor_ph = 0.5
         else:
-            factor_ph = 0.0
+            factor_ph = 0.2  # Mínimo factor de pH en lugar de 0.0
 
         # 3. Calcular Factor de Nitrógeno (N)
         if N_min <= self.nitrogeno <= N_max:
@@ -57,13 +53,13 @@ class Suelo:
             if self.nitrogeno >= N_min * 0.7:
                 factor_n = 0.6
             else:
-                factor_n = 0.0
+                factor_n = 0.25  # Mínimo factor de nitrógeno en lugar de 0.0
         else: # Exceso de Nitrógeno
             # Tolerable hasta el 130% del máximo
             if self.nitrogeno <= N_max * 1.3:
                 factor_n = 0.8
             else:
-                factor_n = 0.0
+                factor_n = 0.3  # Mínimo factor de nitrógeno en lugar de 0.0
 
         # 4. Calcular Factor de Materia Orgánica (MO)
         if MO_min <= self.materia_organica <= MO_max:
@@ -73,29 +69,31 @@ class Suelo:
             if self.materia_organica >= MO_min * 0.95:
                 factor_mo = 0.7
             else:
-                factor_mo = 0.0
+                factor_mo = 0.2  # Mínimo factor de materia orgánica en lugar de 0.0
         else:
             # El exceso de Materia Orgánica usualmente no perjudica el rendimiento
             factor_mo = 1.0
 
         # Calcular Rendimiento Real
-        rendimiento_real = rendimiento_base * factor_ph * factor_n * factor_mo
+        rendimiento_real = rendimiento_base * factor_ph * factor_n * factor_mo * factor_altitud
 
-        # Determinar Estado
-        if factor_ph == 0.0 or factor_n == 0.0 or factor_mo == 0.0:
+        # Determinar Estado de Aptitud
+        if not altitud_apta or factor_ph <= 0.2 or factor_n <= 0.3 or factor_mo <= 0.2:
             apto = False
             estado = 'No Apto'
             
             # Detalle del motivo principal
             motivos = []
-            if factor_ph == 0.0:
+            if not altitud_apta:
+                motivos.append("altitud fuera de rango para el cultivo")
+            if factor_ph <= 0.2:
                 motivos.append("pH fuera de limites")
-            if factor_n == 0.0:
-                motivos.append("N bajo")
-            if factor_mo == 0.0:
+            if factor_n <= 0.3:
+                motivos.append("N fuera de limites")
+            if factor_mo <= 0.2:
                 motivos.append("MO baja")
             detalles = ", ".join(motivos)
-        elif factor_ph < 1.0 or factor_n < 1.0 or factor_mo < 1.0:
+        elif factor_ph < 1.0 or factor_n < 1.0 or factor_mo < 1.0 or factor_altitud < 1.0:
             apto = True
             estado = 'Parcial'
             
@@ -104,9 +102,11 @@ class Suelo:
             if factor_ph < 1.0:
                 motivos.append("pH suboptimo")
             if factor_n < 1.0:
-                motivos.append("N bajo")
+                motivos.append("N suboptimo")
             if factor_mo < 1.0:
                 motivos.append("MO baja")
+            if factor_altitud < 1.0:
+                motivos.append("altitud suboptima")
             detalles = "Parcialmente apto (" + ", ".join(motivos) + ")"
         else:
             apto = True

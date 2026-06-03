@@ -75,12 +75,14 @@ function mostrarResultados(data) {
         let recClass = r.recomendar === 'SI' ? 'rec-si' : 'rec-no';
         
         // Formatear números
-        const rendimientoStr = r.rendimiento_total > 0 ? `${r.rendimiento_total.toFixed(1)} ton` : '-';
-        const ingresoStr = r.ingreso > 0 ? `$${r.ingreso.toLocaleString('es-MX', { maximumFractionDigits: 0 })}` : '-';
-        const costoStr = r.costo > 0 ? `$${r.costo.toLocaleString('es-MX', { maximumFractionDigits: 0 })}` : '-';
-        const utilidadStr = r.utilidad_anual !== 0 ? `$${r.utilidad_anual.toLocaleString('es-MX', { maximumFractionDigits: 0 })}` : '-';
-        const vpnStr = r.vpn > 0 ? `$${r.vpn.toLocaleString('es-MX', { maximumFractionDigits: 0 })}` : '-';
-        const tirStr = r.tir > 0 ? `${(r.tir * 100).toFixed(0)}%` : '-';
+        const formatCurrency = (val) => val < 0 ? `-$${Math.abs(val).toLocaleString('es-MX', { maximumFractionDigits: 0 })}` : `$${val.toLocaleString('es-MX', { maximumFractionDigits: 0 })}`;
+        
+        const rendimientoStr = r.rendimiento_total >= 0 ? `${r.rendimiento_total.toFixed(1)} ton` : '-';
+        const ingresoStr = r.ingreso >= 0 ? formatCurrency(r.ingreso) : '-';
+        const costoStr = r.costo >= 0 ? formatCurrency(r.costo) : '-';
+        const utilidadStr = r.utilidad_anual !== undefined && r.utilidad_anual !== null ? formatCurrency(r.utilidad_anual) : '-';
+        const vpnStr = r.vpn !== undefined && r.vpn !== null ? formatCurrency(r.vpn) : '-';
+        const tirStr = r.tir !== undefined && r.tir !== null ? `${(r.tir * 100).toFixed(0)}%` : '-';
         
         tr.innerHTML = `
             <td><strong>${r.cultivo}</strong></td>
@@ -127,8 +129,8 @@ function dibujarGrafico(resultados) {
         chartInstance.destroy();
     }
     
-    // Filtrar los cultivos que tienen VPN calculado (mayor a 0)
-    const cultivosFiltrados = resultados.filter(r => r.vpn > 0);
+    // Filtrar los cultivos que tienen VPN calculado (distinto de 0)
+    const cultivosFiltrados = resultados.filter(r => r.vpn !== 0);
     
     if (cultivosFiltrados.length === 0) {
         if (chartInstance) {

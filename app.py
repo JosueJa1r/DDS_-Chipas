@@ -72,20 +72,20 @@ def diagnostico_completo():
     for crop in cultivos_datos:
         eval_res = suelo.evaluar_aptitud_cultivo(crop, altitud)
         
+        # Rendimiento y producción total
+        rendimiento_total = eval_res['rendimiento_real'] * superficie
+        # Ingresos totales estimados
+        ingreso = rendimiento_total * crop['precio']
+        # Costos de inversión por hectárea * superficie
+        costo_total = crop['costo'] * superficie
+        # Utilidad neta anual
+        utilidad_anual = ingreso - costo_total
+        
+        # Evaluación financiera
+        vpn = calcular_vpn(utilidad_anual, costo_total)
+        tir = calcular_tir(costo_total, utilidad_anual)
+        
         if eval_res['apto']:
-            # Rendimiento y producción total
-            rendimiento_total = eval_res['rendimiento_real'] * superficie
-            # Ingresos totales estimados
-            ingreso = rendimiento_total * crop['precio']
-            # Costos de inversión por hectárea * superficie
-            costo_total = crop['costo'] * superficie
-            # Utilidad neta anual
-            utilidad_anual = ingreso - costo_total
-            
-            # Evaluación financiera
-            vpn = calcular_vpn(utilidad_anual, costo_total)
-            tir = calcular_tir(costo_total, utilidad_anual)
-            
             # Determinar viabilidad presupuestaria
             if costo_total <= presupuesto:
                 if vpn > 0:
@@ -97,12 +97,6 @@ def diagnostico_completo():
                 
             apto_texto = 'Si' if eval_res['estado'] == 'Apto' else 'Parcial'
         else:
-            rendimiento_total = 0.0
-            ingreso = 0.0
-            costo_total = 0.0
-            utilidad_anual = 0.0
-            vpn = 0.0
-            tir = 0.0
             apto_texto = 'No'
             recomendar = 'NO'
             
@@ -427,14 +421,15 @@ def generar_pdf():
     table_data = [headers]
     
     for r in data.get('resultados', []):
+        fmt_curr = lambda v: f"-${abs(v):,.0f}" if v < 0 else f"${v:,.0f}"
         row = [
             Paragraph(f"<b>{r['cultivo']}</b>", table_cell_style),
             Paragraph(r['apto'], table_cell_style),
             Paragraph(f"{r['rendimiento_total']:.1f} ton", table_cell_style),
-            Paragraph(f"${r['ingreso']:,.0f}", table_cell_style),
-            Paragraph(f"${r['costo']:,.0f}", table_cell_style),
-            Paragraph(f"${r['utilidad_anual']:,.0f}", table_cell_style),
-            Paragraph(f"${r['vpn']:,.0f}", table_cell_style),
+            Paragraph(fmt_curr(r['ingreso']), table_cell_style),
+            Paragraph(fmt_curr(r['costo']), table_cell_style),
+            Paragraph(fmt_curr(r['utilidad_anual']), table_cell_style),
+            Paragraph(fmt_curr(r['vpn']), table_cell_style),
             Paragraph(f"{r['tir']*100:.0f}%", table_cell_style),
             Paragraph(r['recomendar'], table_cell_bold_style)
         ]

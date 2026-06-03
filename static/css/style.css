@@ -45,6 +45,27 @@ body {
     align-items: center;
 }
 
+.logo-container {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.project-logo {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-logo:hover {
+    transform: scale(1.08) rotate(3deg);
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.7);
+}
+
 .main-header {
     text-align: center;
     max-width: 1000px;
